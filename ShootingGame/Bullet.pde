@@ -1,6 +1,7 @@
 class Bullet {
   Point pos;
   boolean movingRight; 
+  float vel = 10;
   Bullet(float x, float y, boolean moveRight) {
     pos = new Point(x, y);
     movingRight = moveRight;
@@ -13,9 +14,9 @@ class Bullet {
 
   void move() {
     if (movingRight) {
-      pos.x += 5;
+      pos.x += vel;
     } else {
-      pos.x -= 5;
+      pos.x -= vel;
     }
   }
 

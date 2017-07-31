@@ -31,6 +31,7 @@ void drawBackground() {
 
 
 void keyPressed() {
+  //println("pressed: " + keyCode);
   p.add(keyCode);
 }
 

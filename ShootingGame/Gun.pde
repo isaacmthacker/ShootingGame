@@ -29,11 +29,13 @@ class Gun {
       ++shootCnt;
     }
   }
+
   void shoot() {
     if (shootCnt == maxShootCnt) {
       bullets.add(new Bullet(pos.x, pos.y, facingRight));
       shootCnt = 0;
     }
+    println("SHOOT");
   }
 
   void drawBullets() {

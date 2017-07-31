@@ -5,15 +5,18 @@ class Player extends Sprite {
   float groundStart;
   boolean movingRight;
 
+  float pHeight = 100;
+  float pWidth = 50;
+
   Gun gun;
 
-  boolean[] keys = new boolean[4];
+  boolean[] keys = new boolean[5];
 
   Player(float x, float y, float gs) {
     pos = new Point(x, y);
     vel = new Point(5, 0);
     groundStart = gs;
-    g = -10;
+    g = -13.5;
     jumpVel = abs(2*g);
     gun = new Gun(x, y, movingRight);
   }
@@ -22,9 +25,12 @@ class Player extends Sprite {
     move();
     display();
     gun.display();
+    fill(0);
+    ellipse(pos.x, pos.y, 10, 10);
   }
 
   void move() {
+    println(keys[4]);
     if (keys[0]) {
       pos.x -= vel.x;
       movingRight = false;
@@ -42,20 +48,28 @@ class Player extends Sprite {
     }
     if (keys[3]) {
     }
+    if (keys[4]) {
+      gun.shoot();
+    }
     if (vel.y > g) {
       vel.y += -1;
     }
-    if (pos.y < groundStart) {
+    if (!intersectGround()) {
       pos.y -= vel.y;
     } else {
       falling = false;
+      pos.y = groundStart-pHeight/2.0;
     }
     updateGun();
+    for (boolean k : keys) {
+      print(k + ", ");
+    }
+    println("");
   }
 
   void add(int code) {
     if (code == 32) {
-      gun.shoot();
+      keys[4] = true;
     } else {
       if (code >= 37 && code <= 40) {
         keys[code-37] = true;
@@ -67,30 +81,47 @@ class Player extends Sprite {
       if (code >= 37 && code <= 40) {
         keys[code-37] = false;
       }
+    } else {
+      keys[4] = false;
     }
   }
 
 
   void updateGun() {
     gun.pos.x = pos.x;
-    gun.pos.y = pos.y-50;
+    gun.pos.y = pos.y;
     gun.facingRight = movingRight;
   }
 
 
 
+  boolean intersectGround() {
+    if (pos.y+pHeight/2.0 >= groundStart) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
 
 
-
-
+  void drawShield() {
+    noFill();
+    strokeWeight(3);
+    stroke(color(0, 0, 255));
+    if (movingRight) {
+      arc(pos.x, pos.y, 1.5*pWidth, 1.5*pHeight, -PI/2, PI/2);
+    } else {
+      arc(pos.x, pos.y, 1.5*pWidth, 1.5*pHeight, PI/2, 3*PI/2);
+    }
+  }
 
 
 
 
   void display() {
     fill(255);
-    ellipse(pos.x, pos.y-50, 50, 100);
-    gun.display();
+    ellipse(pos.x, pos.y, pWidth, pHeight);
+    drawShield();
   }
 }
