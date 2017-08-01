@@ -11,7 +11,7 @@ void setup() {
   groundLen = width;
   ground = new Point(0, height-groundWid);
   //p = new Player(ground.x, ground.y, ground.y);
-  p = new Player(ground.x, height/2.0, ground.y);
+  p = new Player(width/2.0, height/2.0, ground.y);
 }
 
 

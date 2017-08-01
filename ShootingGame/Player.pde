@@ -3,12 +3,14 @@ class Player extends Sprite {
   final float jumpVel;
   boolean falling = false;
   float groundStart;
-  boolean movingRight;
+  boolean movingRight = true;
 
   float pHeight = 100;
   float pWidth = 50;
 
   Gun gun;
+
+  Shield shield;
 
   boolean[] keys = new boolean[5];
 
@@ -19,6 +21,7 @@ class Player extends Sprite {
     g = -13.5;
     jumpVel = abs(2*g);
     gun = new Gun(x, y, movingRight);
+    shield = new Shield(x, y, pWidth*1.5, pHeight*1.5, movingRight);
   }
 
   void run() {
@@ -30,7 +33,6 @@ class Player extends Sprite {
   }
 
   void move() {
-    println(keys[4]);
     if (keys[0]) {
       pos.x -= vel.x;
       movingRight = false;
@@ -50,6 +52,7 @@ class Player extends Sprite {
     }
     if (keys[4]) {
       gun.shoot();
+      shield.health -= 1;
     }
     if (vel.y > g) {
       vel.y += -1;
@@ -61,10 +64,7 @@ class Player extends Sprite {
       pos.y = groundStart-pHeight/2.0;
     }
     updateGun();
-    for (boolean k : keys) {
-      print(k + ", ");
-    }
-    println("");
+    updateShield();
   }
 
   void add(int code) {
@@ -93,6 +93,11 @@ class Player extends Sprite {
     gun.facingRight = movingRight;
   }
 
+  void updateShield() {
+    shield.pos = pos;
+    shield.movingRight = movingRight;
+  }
+
 
 
   boolean intersectGround() {
@@ -105,23 +110,10 @@ class Player extends Sprite {
 
 
 
-  void drawShield() {
-    noFill();
-    strokeWeight(3);
-    stroke(color(0, 0, 255));
-    if (movingRight) {
-      arc(pos.x, pos.y, 1.5*pWidth, 1.5*pHeight, -PI/2, PI/2);
-    } else {
-      arc(pos.x, pos.y, 1.5*pWidth, 1.5*pHeight, PI/2, 3*PI/2);
-    }
-  }
-
-
-
 
   void display() {
     fill(255);
     ellipse(pos.x, pos.y, pWidth, pHeight);
-    drawShield();
+    shield.display();
   }
 }
