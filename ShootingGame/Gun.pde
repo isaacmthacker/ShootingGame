@@ -3,6 +3,9 @@ class Gun {
   boolean facingRight = false;
   float vel = 5;
   ArrayList<Bullet> bullets;
+  float gunLen;
+  float gunWid;
+  float gunCurve;
 
   int maxShootCnt = 10;
   int shootCnt = maxShootCnt;
@@ -11,31 +14,30 @@ class Gun {
     pos = new Point(x, y);
     facingRight = faceRight;
     bullets = new ArrayList<Bullet>();
+    gunLen = 50;
+    gunWid = 15;
+    gunCurve = 10;
   }
 
-  void display() {
-    strokeWeight(3);
-    stroke(color(0, 0, 255));
-    if (facingRight) {
-      line(pos.x, pos.y, pos.x+20, pos.y);
-    } else {
-      line(pos.x, pos.y, pos.x-20, pos.y);
-    }
-    stroke(0);
-    strokeWeight(1);
+  void run() {
+    display();
     drawBullets();
-
     if (shootCnt < maxShootCnt) {
       ++shootCnt;
     }
   }
 
+  void display() {
+    fill(255);
+    rect(pos.x, pos.y-gunWid/2.0, (facingRight) ? gunLen : -gunLen, gunWid, gunCurve);
+  }
+
   void shoot() {
     if (shootCnt == maxShootCnt) {
-      bullets.add(new Bullet(pos.x, pos.y, facingRight));
+      float offset = (facingRight) ? gunLen : -gunLen;
+      bullets.add(new Bullet(pos.x+offset, pos.y, facingRight));
       shootCnt = 0;
     }
-    println("SHOOT");
   }
 
   void drawBullets() {

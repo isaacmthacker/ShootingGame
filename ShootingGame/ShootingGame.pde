@@ -5,13 +5,20 @@ color groundColor = color(55);
 
 Player p;
 
+
+ArrayList<Point> objects;
+
+Platform plat;
+
 void setup() {
   size(1000, 500);
   groundWid = height*0.1;
   groundLen = width;
   ground = new Point(0, height-groundWid);
-  //p = new Player(ground.x, ground.y, ground.y);
-  p = new Player(width/2.0, height/2.0, ground.y);
+  p = new Player(width/4.0, height/2.0, ground.y);
+
+  objects = new ArrayList<Point>();
+  plat = new Platform(width+100, height/2.0);
 }
 
 
@@ -19,6 +26,26 @@ void setup() {
 void draw() {
   drawBackground();
   p.run();
+
+  if (random(1) < 0.5) {
+    objects.add(new Point(width+random(20), random(height)));
+  }
+
+  fill(150);
+  for (Point obj : objects) {
+    if (p.moveScenary) {
+      obj.x -= p.vel.x;
+    }
+    ellipse(obj.x, obj.y, 10, 10);
+  }
+  if (p.moveScenary) {
+    plat.pos.x -= p.vel.x;
+  }
+  println(plat.pos);
+  plat.display();
+  if (plat.pos.x < 0) {
+    plat = new Platform(width+100, height/2.0);
+  }
 }
 
 

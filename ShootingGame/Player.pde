@@ -12,6 +12,8 @@ class Player extends Sprite {
 
   Shield shield;
 
+  boolean moveScenary = false;
+
   boolean[] keys = new boolean[5];
 
   Player(float x, float y, float gs) {
@@ -21,20 +23,21 @@ class Player extends Sprite {
     g = -13.5;
     jumpVel = abs(2*g);
     gun = new Gun(x, y, movingRight);
-    shield = new Shield(x, y, pWidth*1.5, pHeight*1.5, movingRight);
+    //shield = new Shield(x, y, pWidth*1.5, pHeight*1.5, movingRight);
   }
 
   void run() {
     move();
     display();
-    gun.display();
-    fill(0);
-    ellipse(pos.x, pos.y, 10, 10);
+    gun.run();
   }
 
   void move() {
+    moveScenary = false;
     if (keys[0]) {
-      pos.x -= vel.x;
+      if (pos.x > pWidth) {
+        pos.x -= vel.x;
+      }
       movingRight = false;
     }
     if (keys[1]) {
@@ -45,14 +48,17 @@ class Player extends Sprite {
       }
     }
     if (keys[2]) {
-      pos.x += vel.x;
       movingRight = true;
+      if (pos.x <= width/2.0) {
+        pos.x += vel.x;
+      } else {
+        moveScenary = true;
+      }
     }
     if (keys[3]) {
     }
     if (keys[4]) {
       gun.shoot();
-      shield.health -= 1;
     }
     if (vel.y > g) {
       vel.y += -1;
@@ -64,7 +70,6 @@ class Player extends Sprite {
       pos.y = groundStart-pHeight/2.0;
     }
     updateGun();
-    updateShield();
   }
 
   void add(int code) {
@@ -76,6 +81,7 @@ class Player extends Sprite {
       }
     }
   }
+
   void remove(int code) {
     if (code != 32) {
       if (code >= 37 && code <= 40) {
@@ -91,11 +97,6 @@ class Player extends Sprite {
     gun.pos.x = pos.x;
     gun.pos.y = pos.y;
     gun.facingRight = movingRight;
-  }
-
-  void updateShield() {
-    shield.pos = pos;
-    shield.movingRight = movingRight;
   }
 
 
@@ -114,6 +115,7 @@ class Player extends Sprite {
   void display() {
     fill(255);
     ellipse(pos.x, pos.y, pWidth, pHeight);
-    shield.display();
+    fill(0);
+    ellipse(pos.x, pos.y, 10, 10);
   }
 }
