@@ -28,6 +28,8 @@ class Gun {
   }
 
   void display() {
+    fill(0);
+    ellipse(pos.x, pos.y, gunWid, gunWid);
     fill(255);
     rect(pos.x, pos.y-gunWid/2.0, (facingRight) ? gunLen : -gunLen, gunWid, gunCurve);
   }

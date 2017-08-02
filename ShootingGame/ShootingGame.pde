@@ -6,9 +6,9 @@ color groundColor = color(55);
 Player p;
 
 
-ArrayList<Point> objects;
+EnemyManager enemies;
 
-Platform plat;
+PlatformManager platforms;
 
 void setup() {
   size(1000, 500);
@@ -17,48 +17,28 @@ void setup() {
   ground = new Point(0, height-groundWid);
   p = new Player(width/4.0, height/2.0, ground.y);
 
-  objects = new ArrayList<Point>();
-  plat = new Platform(width+100, height/2.0);
+  enemies = new EnemyManager(10);
+  platforms = new PlatformManager(1);
 }
 
 
 
 void draw() {
-  drawBackground();
-  p.run();
-
-  if (random(1) < 0.5) {
-    objects.add(new Point(width+random(20), random(height)));
-  }
-
-  fill(150);
-  for (Point obj : objects) {
-    if (p.moveScenary) {
-      obj.x -= p.vel.x;
-    }
-    ellipse(obj.x, obj.y, 10, 10);
-  }
-  if (p.moveScenary) {
-    plat.pos.x -= p.vel.x;
-  }
-  println(plat.pos);
-  plat.display();
-  if (plat.pos.x < 0) {
-    plat = new Platform(width+100, height/2.0);
-  }
+  drawScenary();
+  enemies.run(p);
+  platforms.run(p);
+  p.run(platforms.playerIntersect);
 }
 
 
-void drawBackground() {
+void drawScenary() {
   background(0);
   fill(groundColor);
   rect(ground.x, ground.y, groundLen, groundWid);
 }
 
 
-
 void keyPressed() {
-  //println("pressed: " + keyCode);
   p.add(keyCode);
 }
 

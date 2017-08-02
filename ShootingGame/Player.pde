@@ -16,9 +16,11 @@ class Player extends Sprite {
 
   boolean[] keys = new boolean[5];
 
+  boolean intersectPlatform = false;
+
   Player(float x, float y, float gs) {
     pos = new Point(x, y);
-    vel = new Point(5, 0);
+    vel = new Point(3, 0);
     groundStart = gs;
     g = -13.5;
     jumpVel = abs(2*g);
@@ -26,7 +28,8 @@ class Player extends Sprite {
     //shield = new Shield(x, y, pWidth*1.5, pHeight*1.5, movingRight);
   }
 
-  void run() {
+  void run(boolean intersectPlat) {
+    intersectPlatform = intersectPlat;
     move();
     display();
     gun.run();
@@ -54,20 +57,24 @@ class Player extends Sprite {
       } else {
         moveScenary = true;
       }
+      // moveScenary = true;
     }
     if (keys[3]) {
     }
     if (keys[4]) {
       gun.shoot();
     }
-    if (vel.y > g) {
+    if (vel.y > g && !intersectPlatform) {
       vel.y += -1;
     }
-    if (!intersectGround()) {
+    if (!intersectGround() && !intersectPlatform) {
       pos.y -= vel.y;
     } else {
       falling = false;
-      pos.y = groundStart-pHeight/2.0;
+      vel.y = 0;
+      if (intersectGround()) {
+        pos.y = groundStart-pHeight/2.0;
+      }
     }
     updateGun();
   }
@@ -109,13 +116,28 @@ class Player extends Sprite {
     }
   }
 
-
+  boolean intersectPlatform(Platform plat) {
+    if (vel.y > 0) {
+      println("first if");
+      if (plat.x <= pos.x && plat.x+plat.len >= pos.x) {
+        println("second if");
+        ellipse(plat.x, plat.y, 5, 5);
+        ellipse(pos.x, pos.y+pHeight/2.0, 5, 5);
+        if ((pos.y+pHeight/2.0) - plat.y <= plat.wid) {
+          println("third if");
+          intersectPlatform = true;
+          return true;
+        }
+      }
+    } 
+    println("fFalse");
+    return false;
+  }
 
 
   void display() {
     fill(255);
     ellipse(pos.x, pos.y, pWidth, pHeight);
-    fill(0);
-    ellipse(pos.x, pos.y, 10, 10);
+    text(vel.toString(), pos.x, pos.y-pHeight);
   }
 }
