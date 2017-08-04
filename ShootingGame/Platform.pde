@@ -1,6 +1,6 @@
 class Platform {
-float x;
-float y;
+  float x;
+  float y;
   float len;
   float wid;
   color c;
@@ -16,5 +16,6 @@ float y;
   void display() {
     fill(c);
     rect(x, y, len, wid);
+    ellipse(x, y, 5, 5);
   }
 }

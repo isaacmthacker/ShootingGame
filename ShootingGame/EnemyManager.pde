@@ -12,9 +12,9 @@ class EnemyManager {
 
   void run(Player p) {
     for (int i = 0; i < enemies.size(); ++i) {
-      if (p.moveScenary) {
-        enemies.get(i).pos.x -= p.vel.x;
-      }
+      // if (p.moveScenary) {
+      //  enemies.get(i).pos.x -= p.vel.x;
+      // }
       enemies.get(i).move();
       enemies.get(i).display();
       if (enemies.get(i).pos.x < 0) {

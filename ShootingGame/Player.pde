@@ -1,136 +1,182 @@
-import java.util.HashSet;
 class Player extends Sprite {
   final float jumpVel;
-  boolean falling = false;
   float groundStart;
-  boolean movingRight = true;
 
   float pHeight = 100;
   float pWidth = 50;
 
-  Gun gun;
+  HashMap<Integer, Integer> keyToIdx = new HashMap<Integer, Integer>();
+  private int left = 0;
+  private int up = 1;
+  private int right = 2;
+  private int down = 3;
+  private int space = 4;
+  private boolean[] keys = new boolean[5]; //left, up, right, down, space
 
-  Shield shield;
+  private int maxJumpCnt = 60;
+  private int jumpCnt = maxJumpCnt;
 
-  boolean moveScenary = false;
-
-  boolean[] keys = new boolean[5];
-
-  boolean intersectPlatform = false;
+  private boolean intersectPlatform = false;
+  private Point intersectedPlatform = new Point(-1, -1);
 
   Player(float x, float y, float gs) {
-    pos = new Point(x, y);
-    vel = new Point(3, 0);
+    g = -20;
     groundStart = gs;
-    g = -13.5;
-    jumpVel = abs(2*g);
-    gun = new Gun(x, y, movingRight);
-    //shield = new Shield(x, y, pWidth*1.5, pHeight*1.5, movingRight);
+    pos = new Point(x, y);
+    vel = new Point(4, 0);
+    jumpVel = abs(1.5*g);
   }
 
-  void run(boolean intersectPlat) {
-    intersectPlatform = intersectPlat;
+  void run() {
     move();
     display();
-    gun.run();
   }
 
   void move() {
-    moveScenary = false;
-    if (keys[0]) {
-      if (pos.x > pWidth) {
-        pos.x -= vel.x;
+    gravity();
+    updateJumpCnt();
+    if (leftPressed()) {
+      moveLeft();
+    }
+    if (rightPressed()) {
+      moveRight();
+    }
+    if (upPressed()) {
+      jump();
+    }
+    if (downPressed()) {
+    }
+    if (spacePressed()) {
+      //shoot();
+    }
+  }
+
+
+  void moveLeft() {
+    if (pos.x > pWidth/2.0) {
+      pos.x -= vel.x;
+    }
+  }
+
+  void moveRight() {
+    if (pos.x < width/2.0) {
+      pos.x += vel.x;
+    }
+  }
+
+  void jump() {
+    if (canJump()) {
+      pos.y -= 1;
+      vel.y = jumpVel;
+      jumpCnt = 0;
+    }
+  }
+
+  void gravity() {
+    if (intersectGround()) {
+      pos.y = groundStart-pHeight/2.0;
+      jumpCnt = maxJumpCnt;
+    } else {
+      if (vel.y > g) {
+        vel.y -= 1.5;
       }
-      movingRight = false;
-    }
-    if (keys[1]) {
-      if (!falling) {
-        vel.y = jumpVel;
-        pos.y -= 1;
-        falling = true;
-      }
-    }
-    if (keys[2]) {
-      movingRight = true;
-      if (pos.x <= width/2.0) {
-        pos.x += vel.x;
-      } else {
-        moveScenary = true;
-      }
-      // moveScenary = true;
-    }
-    if (keys[3]) {
-    }
-    if (keys[4]) {
-      gun.shoot();
-    }
-    if (vel.y > g && !intersectPlatform) {
-      vel.y += -1;
-    }
-    if (!intersectGround() && !intersectPlatform) {
       pos.y -= vel.y;
-    } else {
-      falling = false;
-      vel.y = 0;
-      if (intersectGround()) {
-        pos.y = groundStart-pHeight/2.0;
-      }
-    }
-    updateGun();
-  }
-
-  void add(int code) {
-    if (code == 32) {
-      keys[4] = true;
-    } else {
-      if (code >= 37 && code <= 40) {
-        keys[code-37] = true;
-      }
     }
   }
 
-  void remove(int code) {
-    if (code != 32) {
-      if (code >= 37 && code <= 40) {
-        keys[code-37] = false;
-      }
-    } else {
-      keys[4] = false;
+  void updateJumpCnt() {
+    if (jumpCnt < maxJumpCnt) {
+      ++jumpCnt;
     }
   }
 
-
-  void updateGun() {
-    gun.pos.x = pos.x;
-    gun.pos.y = pos.y;
-    gun.facingRight = movingRight;
+  boolean canJump() {
+    return jumpCnt >= maxJumpCnt;
   }
-
-
 
   boolean intersectGround() {
-    if (pos.y+pHeight/2.0 >= groundStart) {
-      return true;
-    } else {
-      return false;
+    return pos.y+pHeight/2.0 >= groundStart;
+  }
+
+  void addKey(int code) {
+    toggleKey(code, true);
+  }
+
+  void removeKey(int code) {
+    toggleKey(code, false);
+  }
+
+  void toggleKey(int code, boolean pressed) {
+    switch(code) {
+    case 37:
+      keys[left] = pressed;
+      break;
+    case 38:
+      keys[up] = pressed;
+      break;
+    case 39:
+      keys[right] = pressed;
+      break;
+    case 40:
+      keys[down] = pressed;
+      break;
+    case 32:
+      keys[space] = pressed;
+      break;
+    default:
+      break;
     }
   }
 
-  boolean intersectPlatform(Platform plat) {
-    if (vel.y > 0) {
-      println("first if");
-      if (plat.x <= pos.x && plat.x+plat.len >= pos.x) {
-        println("second if");
-        ellipse(plat.x, plat.y, 5, 5);
-        ellipse(pos.x, pos.y+pHeight/2.0, 5, 5);
-        if ((pos.y+pHeight/2.0) - plat.y <= plat.wid) {
-          println("third if");
-          intersectPlatform = true;
+
+  //void updateGun() {
+  // gun.pos.x = pos.x;
+  // gun.pos.y = pos.y;
+  //gun.facingRight = movingRight;
+  // }
+
+
+  boolean isFalling() {
+    return vel.y < 0 && pos.y+pHeight/2.0 < groundStart;
+  }
+
+  boolean movingRight() {
+    return keys[right];
+  }
+
+  boolean moving() {
+    return keys[left] || keys[right];
+  }
+
+  boolean scenaryMoving() {
+    return movingRight();
+  }
+
+  boolean leftPressed() {
+    return keys[left];
+  }
+  boolean rightPressed() {    
+    return keys[right];
+  }
+  boolean upPressed() {    
+    return keys[up];
+  }
+  boolean downPressed() {    
+    return keys[down];
+  }
+  boolean spacePressed() {    
+    return keys[space];
+  }
+
+
+  boolean intersectPlatform(Platform p) {
+    if (isFalling()) {
+      if (p.x <= pos.x && pos.x <= p.x+p.len) {
+        if (pos.y+pHeight/2.0 < p.y && p.y-pos.y <= pHeight/2.0+p.wid) {
           return true;
         }
       }
-    } 
-    println("fFalse");
+    }
     return false;
   }
 
@@ -138,6 +184,7 @@ class Player extends Sprite {
   void display() {
     fill(255);
     ellipse(pos.x, pos.y, pWidth, pHeight);
-    text(vel.toString(), pos.x, pos.y-pHeight);
+    fill(0);
+    ellipse(pos.x, pos.y, 10, 10);
   }
 }
